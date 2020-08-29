@@ -1,6 +1,6 @@
 {
   "name": "@singular/pipes",
-  "version": "1.0.0-prealpha",
+  "version": "1.0.0-alpha.1",
   "description": "Singular framework pipes module",
   "main": "dist/pipes.js",
   "scripts": {
