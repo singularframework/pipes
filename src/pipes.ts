@@ -6,7 +6,7 @@ export class Pipes {
 
   constructor(
     private __pipes: PipeFunction[] = [],
-    private __conditions: AsyncValidatorFunction[] = []
+    private __conditions: Array<ValidatorFunction|AsyncValidatorFunction> = []
   ) { }
 
   /**
@@ -49,210 +49,231 @@ export class Pipes {
   /** Trims the value. */
   public get trim() {
 
-    return new Pipes(this.__pipes.concat(pipes.trim));
+    return new Pipes(this.__pipes.concat(pipes.trim), this.__conditions);
 
   }
 
   /** Trims the value from left. */
   public get ltrim() {
 
-    return new Pipes(this.__pipes.concat(pipes.ltrim));
+    return new Pipes(this.__pipes.concat(pipes.ltrim), this.__conditions);
 
   }
 
   /** Trims the value from right. */
   public get rtrim() {
 
-    return new Pipes(this.__pipes.concat(pipes.rtrim));
+    return new Pipes(this.__pipes.concat(pipes.rtrim), this.__conditions);
 
   }
 
   /** Converts the value to uppercase. */
   public get uppercase() {
 
-    return new Pipes(this.__pipes.concat(pipes.uppercase));
+    return new Pipes(this.__pipes.concat(pipes.uppercase), this.__conditions);
 
   }
 
   /** Converts the value to lowercase. */
   public get lowercase() {
 
-    return new Pipes(this.__pipes.concat(pipes.lowercase));
+    return new Pipes(this.__pipes.concat(pipes.lowercase), this.__conditions);
 
   }
 
   /** Replaces the target inside the value with the replacement. */
   public replace(target: string|RegExp, replacement: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.replace(target, replacement)));
+    return new Pipes(this.__pipes.concat(pipes.replace(target, replacement)), this.__conditions);
 
   }
 
   /** Splits the value into an array. */
-  public split(splitter: string) {
+  public split(splitter: string|RegExp) {
 
-    return new Pipes(this.__pipes.concat(pipes.split(splitter)));
+    return new Pipes(this.__pipes.concat(pipes.split(splitter)), this.__conditions);
 
   }
 
   /** Joins an array into a string. */
   public join(separator: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.join(separator)));
+    return new Pipes(this.__pipes.concat(pipes.join(separator)), this.__conditions);
 
   }
 
   /** Returns a portion of the value based on start and end positions using 'value.slice(start, end)'. */
   public slice(start: number, end?: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.slice(start, end)));
+    return new Pipes(this.__pipes.concat(pipes.slice(start, end)), this.__conditions);
+
+  }
+
+  /** Transforms the value using 'value.map(cb)'. */
+  public map(cb: (value: any, index: number, array: any[]) => any) {
+
+    return new Pipes(this.__pipes.concat(pipes.map(cb)), this.__conditions);
+
+  }
+
+  /** Filters the value using 'value.filter(predicate)'. */
+  public filter(predicate: (value: any, index: number, array: any[]) => boolean) {
+
+    return new Pipes(this.__pipes.concat(pipes.filter(predicate)), this.__conditions);
+
+  }
+
+  /** Reduces the value using 'value.reduce(cb)'. */
+  public reduce(cb: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any) {
+
+    return new Pipes(this.__pipes.concat(pipes.reduce(cb)), this.__conditions);
 
   }
 
   /** Returns keys of value using 'Object.keys()'. */
   public get keys() {
 
-    return new Pipes(this.__pipes.concat(pipes.keys));
+    return new Pipes(this.__pipes.concat(pipes.keys), this.__conditions);
 
   }
 
   /** Returns values of value using 'Object.values()'. */
   public get values() {
 
-    return new Pipes(this.__pipes.concat(pipes.values));
+    return new Pipes(this.__pipes.concat(pipes.values), this.__conditions);
 
   }
 
   /** Increments the value (casted to number) by the given number. */
   public increment(by: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.increment(by)));
+    return new Pipes(this.__pipes.concat(pipes.increment(by)), this.__conditions);
 
   }
 
   /** Increments the value (casted to number) by the value resolved from reference (casted to number). */
   public incrementRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.incrementRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.incrementRef(ref)), this.__conditions);
 
   }
 
   /** Decrements the value (casted to number) by the given number. */
   public decrement(by: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.decrement(by)));
+    return new Pipes(this.__pipes.concat(pipes.decrement(by)), this.__conditions);
 
   }
 
   /** Decrements the value (casted to number) by the value resolved from reference (casted to number). */
   public decrementRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.decrementRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.decrementRef(ref)), this.__conditions);
 
   }
 
   /** Multiplies the value (casted to number) by the given number. */
   public multiply(by: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.multiply(by)));
+    return new Pipes(this.__pipes.concat(pipes.multiply(by)), this.__conditions);
 
   }
 
   /** Multiplies the value (casted to number) by the value resolved from reference (casted to number). */
   public multiplyRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.multiplyRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.multiplyRef(ref)), this.__conditions);
 
   }
 
   /** Divides the value (casted to number) by the given number. */
   public divide(by: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.divide(by)));
+    return new Pipes(this.__pipes.concat(pipes.divide(by)), this.__conditions);
 
   }
 
   /** Divides the value (casted to number) by the value resolved from reference (casted to number). */
   public divideRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.divideRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.divideRef(ref)), this.__conditions);
 
   }
 
   /** Returns the remainder after dividing the value (casted to number) by the given number. */
   public mod(by: number) {
 
-    return new Pipes(this.__pipes.concat(pipes.mod(by)));
+    return new Pipes(this.__pipes.concat(pipes.mod(by)), this.__conditions);
 
   }
 
   /** Returns the remainder after dividing the value (casted to number) by the value resolved from reference (casted to number). */
   public modRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.modRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.modRef(ref)), this.__conditions);
 
   }
 
   /** Rounds the value (casted to number) to the nearest integer. */
   public get round() {
 
-    return new Pipes(this.__pipes.concat(pipes.round));
+    return new Pipes(this.__pipes.concat(pipes.round), this.__conditions);
 
   }
 
   /** Rounds the value (casted to number) up to the nearest integer. */
   public get ceil() {
 
-    return new Pipes(this.__pipes.concat(pipes.ceil));
+    return new Pipes(this.__pipes.concat(pipes.ceil), this.__conditions);
 
   }
 
   /** Rounds the value (casted to number) down to the nearest integer. */
   public get floor() {
 
-    return new Pipes(this.__pipes.concat(pipes.floor));
+    return new Pipes(this.__pipes.concat(pipes.floor), this.__conditions);
 
   }
 
   /** Returns the absolute value of the value (casted to number). */
   public get abs() {
 
-    return new Pipes(this.__pipes.concat(pipes.abs));
+    return new Pipes(this.__pipes.concat(pipes.abs), this.__conditions);
 
   }
 
   /** Negates the value (casted to number). */
   public get negate() {
 
-    return new Pipes(this.__pipes.concat(pipes.negate));
+    return new Pipes(this.__pipes.concat(pipes.negate), this.__conditions);
 
   }
 
   /** Returns the minimum of the value (casted to number) with the given values. */
   public min(...values: number[]) {
 
-    return new Pipes(this.__pipes.concat(pipes.min(...values)));
+    return new Pipes(this.__pipes.concat(pipes.min(...values)), this.__conditions);
 
   }
 
   /** Returns the minimum of the value (casted to number) with the values resolved from reference (casted to number). */
   public minRef(...refs: string[]) {
 
-    return new Pipes(this.__pipes.concat(pipes.minRef(...refs)));
+    return new Pipes(this.__pipes.concat(pipes.minRef(...refs)), this.__conditions);
 
   }
 
   /** Returns the maximum of the value (casted to number) with the given values. */
   public max(...values: number[]) {
 
-    return new Pipes(this.__pipes.concat(pipes.max(...values)));
+    return new Pipes(this.__pipes.concat(pipes.max(...values)), this.__conditions);
 
   }
 
   /** Returns the minimum of the value (casted to number) with the values resolved from reference (casted to number). */
   public maxRef(...refs: string[]) {
 
-    return new Pipes(this.__pipes.concat(pipes.maxRef(...refs)));
+    return new Pipes(this.__pipes.concat(pipes.maxRef(...refs)), this.__conditions);
 
   }
 
@@ -264,7 +285,7 @@ export class Pipes {
   */
   public keep(regex: RegExp, group: number|string) {
 
-    return new Pipes(this.__pipes.concat(pipes.keep(regex, group)));
+    return new Pipes(this.__pipes.concat(pipes.keep(regex, group)), this.__conditions);
 
   }
 
@@ -275,42 +296,42 @@ export class Pipes {
   */
   public format(tokens: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.format(tokens)));
+    return new Pipes(this.__pipes.concat(pipes.format(tokens)), this.__conditions);
 
   }
 
   /** Casts the value to number. */
   public get toNumber() {
 
-    return new Pipes(this.__pipes.concat(pipes.toNumber));
+    return new Pipes(this.__pipes.concat(pipes.toNumber), this.__conditions);
 
   }
 
   /** Casts the value to string. */
   public get toString() {
 
-    return new Pipes(this.__pipes.concat(pipes.toString));
+    return new Pipes(this.__pipes.concat(pipes.toString), this.__conditions);
 
   }
 
   /** Casts the value to boolean. */
   public get toBoolean() {
 
-    return new Pipes(this.__pipes.concat(pipes.toBoolean));
+    return new Pipes(this.__pipes.concat(pipes.toBoolean), this.__conditions);
 
   }
 
   /** Sets the value to the given value. */
   public set(value: any) {
 
-    return new Pipes(this.__pipes.concat(pipes.set(value)));
+    return new Pipes(this.__pipes.concat(pipes.set(value)), this.__conditions);
 
   }
 
   /** Sets the value to the value resolved from reference. */
   public setRef(ref: string) {
 
-    return new Pipes(this.__pipes.concat(pipes.setRef(ref)));
+    return new Pipes(this.__pipes.concat(pipes.setRef(ref)), this.__conditions);
 
   }
 
@@ -322,7 +343,7 @@ export class Pipes {
 
     return new Pipes(
       this.__pipes,
-      [].concat(
+      this.__conditions.concat(
         typeof condition === 'function' ? condition : condition.__exec(),
         ...additionalConditions.map(condition => typeof condition === 'function' ? condition : condition.__exec())
       )

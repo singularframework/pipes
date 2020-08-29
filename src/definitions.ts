@@ -2,20 +2,23 @@ import { PipeFunction, resolveRef } from '@singular/core';
 import { DateTime } from 'luxon';
 
 const pipes = {
-  trim: <PipeFunction>(value => value?.trim()),
-  ltrim: <PipeFunction>(value => value?.trimLeft()),
-  rtrim: <PipeFunction>(value => value?.trimRight()),
-  uppercase: <PipeFunction>(value => value?.toUpperCase()),
-  lowercase: <PipeFunction>(value => value?.toLowerCase()),
-  replace: (target: string|RegExp, replacement: string) => <PipeFunction>(value => value?.replace(target, replacement)),
-  split: (splitter: string) => <PipeFunction>(value => value?.split(splitter)),
-  join: (separator: string) => <PipeFunction>(value => value?.join(separator)),
+  trim: <PipeFunction>(value => typeof value === 'string' ? value.trim() : undefined),
+  ltrim: <PipeFunction>(value => typeof value === 'string' ? value.trimLeft() : undefined),
+  rtrim: <PipeFunction>(value => typeof value === 'string' ? value.trimRight() : undefined),
+  uppercase: <PipeFunction>(value => typeof value === 'string' ? value.toUpperCase() : undefined),
+  lowercase: <PipeFunction>(value => typeof value === 'string' ? value.toLowerCase() : undefined),
+  replace: (target: string|RegExp, replacement: string) => <PipeFunction>(value => typeof value === 'string' ? value.replace(target, replacement) : undefined),
+  split: (splitter: string|RegExp) => <PipeFunction>(value => typeof value === 'string' ? value.split(splitter) : undefined),
+  join: (separator: string) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.join(separator) : undefined),
   slice: (start: number, end?: number) => <PipeFunction>(value => {
 
-    if ( typeof value === 'string' || (value && typeof value === 'object' && value.constructor === Array ) ) return value.slice(start, end);
+    if ( typeof value === 'string' || (value && typeof value === 'object' && value.constructor === Array) ) return value.slice(start, end);
     else return undefined;
 
   }),
+  map: (cb: (value: any, index: number, array: any[]) => any) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.map(cb) : undefined),
+  filter: (predicate: (value: any, index: number, array: any[]) => boolean) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.filter(predicate) : undefined),
+  reduce: (cb: (previousValue: any, currentValue: any, currentIndex: any, array: any[]) => any) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array && value.length ? value.reduce(cb) : undefined),
   keys: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.keys(value) : undefined),
   values: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.values(value) : undefined),
   increment: (by: number) => <PipeFunction>(value => +value + by),
