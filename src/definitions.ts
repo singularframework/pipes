@@ -1,4 +1,4 @@
-import { PipeFunction, resolveRef } from '@singular/core';
+import { PipeFunction, AsyncPipeFunction, resolveRef, ValidatorFunction, AsyncValidatorFunction } from '@singular/core';
 import { DateTime } from 'luxon';
 
 const pipes = {
@@ -17,7 +17,25 @@ const pipes = {
 
   }),
   map: (cb: (value: any, index: number, array: any[]) => any) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.map(cb) : undefined),
-  filter: (predicate: (value: any, index: number, array: any[]) => boolean) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.filter(predicate) : undefined),
+  filter: (predicate: ((value: any, array: any[], index: number) => boolean)|ValidatorFunction|AsyncValidatorFunction) => <AsyncPipeFunction>(async value => {
+
+    if ( ! value || typeof value !== 'object' || value.constructor !== Array ) return undefined;
+
+    const kept = [];
+
+    for ( let i = 0; i < value.length; i++ ) {
+
+      const result = await predicate(value[i], value, i);
+
+      if ( ! result || result instanceof Error ) continue;
+
+      kept.push(value[i]);
+
+    }
+
+    return kept;
+
+  }),
   reduce: (cb: (previousValue: any, currentValue: any, currentIndex: any, array: any[]) => any) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array && value.length ? value.reduce(cb) : undefined),
   keys: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.keys(value) : undefined),
   values: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.values(value) : undefined),

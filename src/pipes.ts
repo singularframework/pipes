@@ -2,10 +2,14 @@ import 'source-map-support/register';
 import { ValidatorFunction, AsyncValidatorFunction, PipeFunction, AsyncPipeFunction, ExecutableValidators } from '@singular/core';
 import pipes from './definitions';
 
+type MapCallback = (value: any, index: number, array: any[]) => any;
+type FilterPredicate = (value: any, array: any[], index: number) => boolean;
+type ReduceCallback = (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any;
+
 export class Pipes {
 
   constructor(
-    private __pipes: PipeFunction[] = [],
+    private __pipes: Array<PipeFunction|AsyncPipeFunction> = [],
     private __conditions: Array<ValidatorFunction|AsyncValidatorFunction> = []
   ) { }
 
@@ -36,7 +40,7 @@ export class Pipes {
 
       for ( const pipe of this.__pipes ) {
 
-        pipedValue = pipe(pipedValue, rawValues);
+        pipedValue = await pipe(pipedValue, rawValues);
 
       }
 
@@ -110,21 +114,28 @@ export class Pipes {
   }
 
   /** Transforms the value using 'value.map(cb)'. */
-  public map(cb: (value: any, index: number, array: any[]) => any) {
+  public map(cb: MapCallback) {
 
     return new Pipes(this.__pipes.concat(pipes.map(cb)), this.__conditions);
 
   }
 
-  /** Filters the value using 'value.filter(predicate)'. */
-  public filter(predicate: (value: any, index: number, array: any[]) => boolean) {
+  /**
+  * Filters the value by running each value's element through the predicate.
+  *
+  * Predicate can be a validator function (sync and async) or Validators object.
+  */
+  public filter(predicate: FilterPredicate|ValidatorFunction|AsyncValidatorFunction|ExecutableValidators) {
 
-    return new Pipes(this.__pipes.concat(pipes.filter(predicate)), this.__conditions);
+    return new Pipes(
+      this.__pipes.concat(pipes.filter(typeof predicate === 'function' ? predicate : predicate.__exec())),
+      this.__conditions
+    );
 
   }
 
   /** Reduces the value using 'value.reduce(cb)'. */
-  public reduce(cb: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any) {
+  public reduce(cb: ReduceCallback) {
 
     return new Pipes(this.__pipes.concat(pipes.reduce(cb)), this.__conditions);
 
