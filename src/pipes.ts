@@ -5,6 +5,7 @@ import pipes from './definitions';
 type MapCallback = (value: any, index: number, array: any[]) => any;
 type FilterPredicate = (value: any, array: any[], index: number) => boolean;
 type ReduceCallback = (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any;
+type SortCallback = (a: any, b: any) => number;
 
 export class Pipes {
 
@@ -138,6 +139,13 @@ export class Pipes {
   public reduce(cb: ReduceCallback) {
 
     return new Pipes(this.__pipes.concat(pipes.reduce(cb)), this.__conditions);
+
+  }
+
+  /** Sorts the value using 'value.sort(cb)'. */
+  public sort(cb?: SortCallback) {
+
+    return new Pipes(this.__pipes.concat(pipes.sort(cb)), this.__conditions);
 
   }
 
@@ -372,12 +380,22 @@ export class Pipes {
 
   }
 
+  /** Applies the pipes only if the given conditions are true. */
+  public ignoreUnless(
+    condition: ValidatorFunction|AsyncValidatorFunction|ExecutableValidators,
+    ...additionalConditions: Array<ValidatorFunction|AsyncValidatorFunction|ExecutableValidators>
+  ) {
+
+    return this.when(condition, ...additionalConditions);
+
+  }
+
   /** Returns a new validator that validates the piped value using a given validator. */
-  public then(validator: ValidatorFunction|AsyncValidatorFunction) {
+  public then(validator: ValidatorFunction|AsyncValidatorFunction): AsyncValidatorFunction {
 
-    return <ValidatorFunction|AsyncValidatorFunction>((value: any, rawValues?: any) => {
+    return (async (value: any, rawValues?: any) => {
 
-      return validator(this.__exec()(value, rawValues), rawValues);
+      return validator(await this.__exec()(value, rawValues), rawValues);
 
     });
 

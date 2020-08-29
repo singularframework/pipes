@@ -37,6 +37,7 @@ const pipes = {
 
   }),
   reduce: (cb: (previousValue: any, currentValue: any, currentIndex: any, array: any[]) => any) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array && value.length ? value.reduce(cb) : undefined),
+  sort: (cb?: (a: any, b: any) => number) => <PipeFunction>(value => value && typeof value === 'object' && value.constructor === Array ? value.sort(cb) : undefined),
   keys: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.keys(value) : undefined),
   values: <PipeFunction>(value => value && typeof value === 'object' && (value.constructor === Object || value.constructor === Array) ? Object.values(value) : undefined),
   increment: (by: number) => <PipeFunction>(value => +value + by),
@@ -72,6 +73,8 @@ const pipes = {
 
   }),
   format: (tokens: string) => <PipeFunction>(value => {
+
+    if ( typeof value !== 'string' && typeof value !== 'number' ) return undefined;
 
     const formatted = DateTime.fromJSDate(new Date(value)).toFormat(tokens);
 

@@ -204,6 +204,309 @@ describe('Pipes', function() {
 
   });
 
+  it('should sort arrays correctly', async function() {
+
+    let pipes = pipe.sort().__exec();
+
+    expect(await pipes([4,3,1,2])).to.deep.equal([1,2,3,4]);
+    expect(await pipes([10,4,3,1,2])).to.deep.equal([1,10,2,3,4]);
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+    pipes = pipe.sort((a, b) => a - b).__exec();
+
+    expect(await pipes([4,3,1,2])).to.deep.equal([1,2,3,4]);
+    expect(await pipes([10,4,3,1,2])).to.deep.equal([1,2,3,4,10]);
+
+    pipes = pipe.sort((a, b) => b - a).__exec();
+
+    expect(await pipes([4,3,1,2])).to.deep.equal([4,3,2,1]);
+    expect(await pipes([10,4,3,1,2])).to.deep.equal([10,4,3,2,1]);
+
+  });
+
+  it('should pipe keys correctly', async function() {
+
+    let pipes = pipe.keys.__exec();
+
+    expect(await pipes([4,3,1,2])).to.deep.equal(["0","1","2","3"]);
+    expect(await pipes({a: true, b: false, c: null})).to.deep.equal(['a', 'b', 'c']);
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+  });
+
+  it('should pipe values correctly', async function() {
+
+    let pipes = pipe.values.__exec();
+
+    expect(await pipes([4,3,1,2])).to.deep.equal([4,3,1,2]);
+    expect(await pipes({a: true, b: false, c: null})).to.deep.equal([true,false,null]);
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+  });
+
+  it('should pipe using mathematics correctly', async function() {
+
+    let pipes = pipe.increment(3).decrement(2).multiply(10).divide(5).__exec();
+
+    expect(await pipes(1)).to.equal(4);
+    expect(await pipes(34)).to.equal(70);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(2);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(2);
+
+    pipes = pipe.mod(2).__exec();
+
+    expect(await pipes(1)).to.equal(1);
+    expect(await pipes(34)).to.equal(0);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.negate.__exec();
+
+    expect(await pipes(1)).to.equal(-1);
+    expect(await pipes(-34)).to.equal(34);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.abs.__exec();
+
+    expect(await pipes(1)).to.equal(1);
+    expect(await pipes(-34)).to.equal(34);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.round.__exec();
+
+    expect(await pipes(1.49)).to.equal(1);
+    expect(await pipes(2.78)).to.equal(3);
+    expect(await pipes(4.5)).to.equal(5);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.ceil.__exec();
+
+    expect(await pipes(1.49)).to.equal(2);
+    expect(await pipes(2.78)).to.equal(3);
+    expect(await pipes(4.5)).to.equal(5);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.floor.__exec();
+
+    expect(await pipes(1.49)).to.equal(1);
+    expect(await pipes(2.78)).to.equal(2);
+    expect(await pipes(4.5)).to.equal(4);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.min(10, 100).__exec();
+
+    expect(await pipes(20)).to.equal(10);
+    expect(await pipes(12)).to.equal(10);
+    expect(await pipes(3)).to.equal(3);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(0);
+
+    pipes = pipe.max(10, 100).__exec();
+
+    expect(await pipes(20)).to.equal(100);
+    expect(await pipes(12)).to.equal(100);
+    expect(await pipes(104)).to.equal(104);
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes(null)).to.equal(100);
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(false)).to.equal(100);
+
+  });
+
+  it('should pipe by reference using mathematics correctly', async function() {
+
+    const values = { three: 3, two: 2, ten: 10, five: 5, hundred: 100, false: false };
+    let pipes = pipe.incrementRef('three').decrementRef('two').multiplyRef('ten').divideRef('five').incrementRef('false').__exec();
+
+    expect(await pipes(1, values)).to.equal(4);
+    expect(await pipes(34, values)).to.equal(70);
+    expect(await pipes(undefined, values)).to.be.NaN;
+    expect(await pipes(null, values)).to.equal(2);
+    expect(await pipes('string', values)).to.be.NaN;
+    expect(await pipes(false, values)).to.equal(2);
+
+    pipes = pipe.modRef('two').__exec();
+
+    expect(await pipes(1, values)).to.equal(1);
+    expect(await pipes(34, values)).to.equal(0);
+    expect(await pipes(undefined, values)).to.be.NaN;
+    expect(await pipes(null, values)).to.equal(0);
+    expect(await pipes('string', values)).to.be.NaN;
+    expect(await pipes(false, values)).to.equal(0);
+
+    pipes = pipe.minRef('ten', 'hundred').__exec();
+
+    expect(await pipes(20, values)).to.equal(10);
+    expect(await pipes(12, values)).to.equal(10);
+    expect(await pipes(3, values)).to.equal(3);
+    expect(await pipes(undefined, values)).to.be.NaN;
+    expect(await pipes(null, values)).to.equal(0);
+    expect(await pipes('string', values)).to.be.NaN;
+    expect(await pipes(false, values)).to.equal(0);
+
+    pipes = pipe.maxRef('ten', 'hundred').__exec();
+
+    expect(await pipes(20, values)).to.equal(100);
+    expect(await pipes(12, values)).to.equal(100);
+    expect(await pipes(104, values)).to.equal(104);
+    expect(await pipes(undefined, values)).to.be.NaN;
+    expect(await pipes(null, values)).to.equal(100);
+    expect(await pipes('string', values)).to.be.NaN;
+    expect(await pipes(false, values)).to.equal(100);
+
+  });
+
+  it('should keep matched group from regex correctly', async function() {
+
+    let pipes = pipe.keep(/^(?<firstname>.+)\s+(?<lastname>.+)$/, 'lastname').__exec();
+
+    expect(await pipes('John Slow')).to.equal('Slow');
+    expect(await pipes('Cartman     Electra')).to.equal('Electra');
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+    pipes = pipe.keep(/^(?<firstname>.+)\s+(?<lastname>.+)$/, 'middlename').__exec();
+
+    expect(await pipes('John Slow')).to.be.undefined;
+    expect(await pipes('Cartman     Electra')).to.be.undefined;
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+    pipes = pipe.keep(/^(.+)\s+(.+)$/, 'lastname').__exec();
+
+    expect(await pipes('John Slow')).to.be.undefined;
+    expect(await pipes('Cartman     Electra')).to.be.undefined;
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+    pipes = pipe.keep(/^(.+)\s+(.+)$/, 1).__exec();
+
+    expect(await pipes('John Slow')).to.equal('Slow');
+    expect(await pipes('Cartman     Electra')).to.equal('Electra');
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+    pipes = pipe.keep(/^(.+)\s+(.+)$/, 2).__exec();
+
+    expect(await pipes('John Slow')).to.be.undefined;
+    expect(await pipes('Cartman     Electra')).to.be.undefined;
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(123)).to.be.undefined;
+    expect(await pipes(false)).to.be.undefined;
+
+  });
+
+  it('should format dates correctly', async function() {
+
+    let pipes = pipe.format('yyyy').__exec();
+
+    expect(await pipes(1598722752724)).to.equal('2020');
+    expect(await pipes('2020-08-29T17:39:12.724Z')).to.equal('2020');
+    expect(await pipes(undefined)).to.be.undefined;
+    expect(await pipes(null)).to.be.undefined;
+    expect(await pipes('string')).to.be.undefined;
+    expect(await pipes(true)).to.be.undefined;
+
+  });
+
+  it('should cast types correctly', async function() {
+
+    let pipes = pipe.toString.__exec();
+
+    expect(await pipes(123)).to.equal('123');
+    expect(await pipes('string')).to.equal('string');
+    expect(await pipes(undefined)).to.equal('undefined');
+    expect(await pipes(null)).to.equal('null');
+    expect(await pipes(false)).to.equal('false');
+    expect(await pipes(true)).to.equal('true');
+    expect(await pipes([1,2,3])).to.equal('1,2,3');
+    expect(await pipes({a:'blah'})).to.equal('[object Object]');
+    expect(await pipes({0: 1})).to.equal('[object Object]');
+
+    pipes = pipe.toNumber.__exec();
+
+    expect(await pipes(123)).to.equal(123);
+    expect(await pipes('002')).to.equal(2);
+    expect(await pipes([1])).to.equal(1);
+    expect(await pipes([1,2,3])).to.be.NaN;
+    expect(await pipes('string')).to.be.NaN;
+    expect(await pipes(undefined)).to.be.NaN;
+    expect(await pipes({a:1})).to.be.NaN;
+    expect(await pipes(null)).to.equal(0);
+    expect(await pipes(false)).to.equal(0);
+    expect(await pipes(true)).to.equal(1);
+
+    pipes = pipe.toBoolean.__exec();
+
+    expect(await pipes(123)).to.be.true;
+    expect(await pipes('')).to.be.false;
+    expect(await pipes('string')).to.be.true;
+    expect(await pipes(undefined)).to.be.false;
+    expect(await pipes(null)).to.be.false;
+    expect(await pipes(false)).to.be.false;
+    expect(await pipes(true)).to.be.true;
+
+  });
+
+  it('should set value by value and reference correctly', async function() {
+
+    const body = { dominant: 1990 };
+    let pipes = pipe.set(false).__exec();
+
+    expect(await pipes(123)).to.be.false;
+    expect(await pipes(undefined)).to.be.false;
+
+    pipes = pipe.setRef('dominant').__exec();
+
+    expect(await pipes(123, body)).to.equal(1990);
+    expect(await pipes(undefined, body)).to.equal(1990);
+
+  });
+
   it('should conditionally pipe values correctly', async function() {
 
     const body1 = {
@@ -235,10 +538,19 @@ describe('Pipes', function() {
     expect(await pipes(body1.value3, body1)).to.equal(3);
     expect(await pipes(body2.value3, body2)).to.be.undefined;
 
-    pipes = pipe.setRef('value1').decrementRef('value2').when($('operation').equals('subtraction')).__exec();
+    pipes = pipe.setRef('value1').decrementRef('value2').if($('operation').equals('subtraction')).__exec();
 
     expect(await pipes(body1.value3, body1)).to.be.undefined;
     expect(await pipes(body2.value3, body2)).to.equal(1);
+
+  });
+
+  it('should convert pipes to validator correctly', async function() {
+
+    let pipedValue: string;
+    await pipe.trim.lowercase.then(value => { pipedValue = value; return true; })(' Freddy Venus   ');
+
+    expect(pipedValue).to.equal('freddy venus');
 
   });
 
