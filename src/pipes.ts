@@ -1,5 +1,5 @@
 import 'source-map-support/register';
-import { ValidatorFunction, AsyncValidatorFunction, PipeFunction, AsyncPipeFunction, ExecutableValidators } from '@singular/core';
+import { ValidatorFunction, AsyncValidatorFunction, PipeFunction, AsyncPipeFunction, ExecutableValidators } from '@singular/common';
 import pipes from './definitions';
 
 type MapCallback = (value: any, index: number, array: any[]) => any;

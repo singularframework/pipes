@@ -1,4 +1,4 @@
-import { PipeFunction, AsyncPipeFunction, resolveRef, ValidatorFunction, AsyncValidatorFunction } from '@singular/core';
+import { PipeFunction, AsyncPipeFunction, resolveRef, ValidatorFunction, AsyncValidatorFunction } from '@singular/common';
 import { DateTime } from 'luxon';
 
 const pipes = {

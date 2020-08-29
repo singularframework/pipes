@@ -4,7 +4,7 @@
   "description": "Singular framework pipes module",
   "main": "dist/pipes.js",
   "scripts": {
-    "postinstall": "(cd ./node_modules/@singular/core && npm install && npm start && (cd ../validators && npm install && npm start) || echo \"@singular/validators was not built\") || echo \"Post install failed!\"",
+    "postinstall": "(cd ./node_modules/@singular/common && npm install && npm start && (cd ../validators && npm install && npm start) || echo \"@singular/validators was not built\") || echo \"Post install failed!\"",
     "start": "./node_modules/typescript/bin/tsc --build",
     "docs": "./node_modules/typedoc/bin/typedoc --out docs src",
     "test": "./node_modules/typescript/bin/tsc -p test/tsconfig.json && ./node_modules/mocha/bin/mocha ./test/dist/main.spec.js"
@@ -30,12 +30,12 @@
   },
   "homepage": "https://github.com/singularframework/pipes#readme",
   "dependencies": {
-    "@singular/core": "github:singularframework/core#1.x-alpha",
+    "@singular/common": "github:singularframework/common#v1.0.0-alpha.1",
+    "@singular/validators": "github:singularframework/validators#v1.0.0-alpha.4",
     "luxon": "^1.25.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "@singular/validators": "github:singularframework/validators#v1.0.0-alpha.3",
     "@types/chai": "^4.2.12",
     "@types/luxon": "^1.24.4",
     "@types/mocha": "^8.0.3",
