@@ -362,7 +362,7 @@ export class Pipes {
 
     return new Pipes(
       this.__pipes,
-      this.__conditions.concat(
+      [].concat(
         typeof condition === 'function' ? condition : condition.__exec(),
         ...additionalConditions.map(condition => typeof condition === 'function' ? condition : condition.__exec())
       )
