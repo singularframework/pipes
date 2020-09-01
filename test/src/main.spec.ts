@@ -507,6 +507,120 @@ describe('Pipes', function() {
 
   });
 
+  it('should pipe children of value correctly', async function() {
+
+    const body = {
+      arrayOfStrings: [
+        '   string   ',
+        'String   ',
+        '   strinG'
+      ],
+      arrayOfObjects: [
+        { title: 'title1', index: 0 },
+        { title: 'title2', index: 1 },
+        { title: 'title3', index: 2 }
+      ],
+      object: {
+        value: 'string value',
+        other: false
+      },
+      nestedArray: [
+        { type: 'person', info: {
+          name: 'Barack Osama',
+          age: 59,
+          children: [
+            { name: 'Malia Ann Osama', age: 22 },
+            { name: 'Sasha Osama', age: 19 }
+          ]
+        }}
+      ]
+    };
+
+    let pipes = pipe.children(pipe.lowercase.trim).__exec();
+
+    expect(await pipes(body.arrayOfStrings, body)).to.deep.equal(['string','string','string']);
+    expect(await pipes(undefined, body)).to.be.undefined;
+    expect(await pipes(null, body)).to.be.undefined;
+    expect(await pipes(false, body)).to.be.undefined;
+    expect(await pipes(123, body)).to.be.undefined;
+
+    pipes = pipe.children({ title: pipe.uppercase, index: pipe.increment(1).__exec() }).__exec();
+
+    expect(await pipes(body.arrayOfObjects, body)).to.deep.equal([
+      { title: 'TITLE1', index: 1 },
+      { title: 'TITLE2', index: 2 },
+      { title: 'TITLE3', index: 3 }
+    ]);
+    expect(await pipes(undefined, body)).to.be.undefined;
+    expect(await pipes(null, body)).to.be.undefined;
+    expect(await pipes(false, body)).to.be.undefined;
+    expect(await pipes(123, body)).to.be.undefined;
+    expect(await pipes(body.arrayOfStrings, body)).to.deep.equal([undefined,undefined,undefined]);
+
+    pipes = pipe.children({ value: pipe.uppercase }).__exec();
+
+    expect(await pipes(body.object, body)).to.have.property('value', 'STRING VALUE');
+
+    // Checking local refs
+    pipes = pipe.children({ title: pipe.setRef('object.value').uppercase }).__exec();
+
+    expect(await pipes(body.arrayOfObjects, body)).to.deep.equal([
+      { title: 'STRING VALUE', index: 1 },
+      { title: 'STRING VALUE', index: 2 },
+      { title: 'STRING VALUE', index: 3 }
+    ]);
+
+    pipes = pipe.children({ title: pipe.setRef('object.value').uppercase }, true).__exec();
+
+    expect(await pipes(body.arrayOfObjects, body)).to.deep.equal([
+      { title: undefined, index: 1 },
+      { title: undefined, index: 2 },
+      { title: undefined, index: 3 }
+    ]);
+
+    pipes = pipe.children({ title: pipe.setRef('index').decrement(1) }, true).__exec();
+
+    expect(await pipes(body.arrayOfObjects, body)).to.deep.equal([
+      { title: 0, index: 1 },
+      { title: 1, index: 2 },
+      { title: 2, index: 3 }
+    ]);
+
+    pipes = pipe.children({ value: pipe.setRef('arrayOfObjects.1.index') }).__exec();
+
+    expect(await pipes(body.object, body)).to.have.property('value', 2);
+
+    pipes = pipe.children({ value: pipe.setRef('arrayOfObjects.1.index') }, true).__exec();
+
+    expect(await pipes(body.object, body)).to.have.property('value', undefined);
+
+    pipes = pipe.children({ value: pipe.setRef('other') }, true).__exec();
+
+    expect(await pipes(body.object, body)).to.have.property('value', false);
+    expect(await pipes(undefined, body)).to.be.undefined;
+
+    pipes = pipe.children({
+      type: value => `$${value}`,
+      info: pipe.children({
+        children: pipe.children({
+          age: pipe.negate
+        })
+      })
+    }).__exec();
+
+    expect(await pipes(body.nestedArray, body)).to.deep.equal([
+      { type: '$person', info: {
+        name: 'Barack Osama',
+        age: 59,
+        children: [
+          { name: 'Malia Ann Osama', age: -22 },
+          { name: 'Sasha Osama', age: -19 }
+        ]
+      }}
+    ]);
+
+  });
+
   it('should conditionally pipe values correctly', async function() {
 
     const body1 = {

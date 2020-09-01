@@ -1,4 +1,4 @@
-import { PipeFunction, AsyncPipeFunction, resolveRef, ValidatorFunction, AsyncValidatorFunction } from '@singular/common';
+import { PipeFunction, AsyncPipeFunction, TransformationDefinition, resolveRef, ValidatorFunction, AsyncValidatorFunction } from '@singular/common';
 import { DateTime } from 'luxon';
 
 const pipes = {
@@ -87,7 +87,81 @@ const pipes = {
   toString: <PipeFunction>(value => value + ''),
   toBoolean: <PipeFunction>(value => !! value),
   set: (value: any) => <PipeFunction>(() => value),
-  setRef: (ref: string) => <PipeFunction>((value, rawValues) => resolveRef(ref, rawValues))
+  setRef: (ref: string) => <PipeFunction>((value, rawValues) => resolveRef(ref, rawValues)),
+  children: (transformer: TransformationDefinition|PipeFunction|AsyncPipeFunction, localRefs?: boolean) => {
+
+    return async (value: any, rawValues?: any) => {
+
+      // If value is of type object
+      if ( !! value && typeof value === 'object' ) {
+
+        // If object
+        if ( value.constructor === Object ) {
+
+          // If transformer is a direct function
+          if ( typeof transformer === 'function' ) return await transformer(value, localRefs ? value : rawValues);
+
+          // Otherwise (it's a transformation definition object)
+          for ( const key in transformer ) {
+
+            let keyTransformer = transformer[key];
+
+            // If key transformer is ExecutablePipes, execute it to get a single pipe function
+            if ( typeof keyTransformer !== 'function' ) keyTransformer = keyTransformer.__exec();
+
+            value[key] = await keyTransformer(value[key], localRefs ? value : rawValues);
+
+          }
+
+          return value;
+
+        }
+        // If array
+        else if ( value.constructor === Array ) {
+
+          // Iterate through the array
+          for ( let i = 0; i < value.length; i++ ) {
+
+            // If transformer is a direct function
+            if ( typeof transformer === 'function' ) {
+
+              value[i] = await transformer(value[i], localRefs ? value[i] : rawValues);
+              continue;
+
+            }
+
+            // Otherwise (it's a transformation definition object)
+            if ( ! value[i] || typeof value[i] !== 'object' || value[i].constructor !== Object ) {
+
+              value[i] = undefined;
+              continue;
+
+            }
+
+            for ( const key in transformer ) {
+
+              let keyTransformer = transformer[key];
+
+              // If key transformer is ExecutablePipes, execute it to get a single pipe function
+              if ( typeof keyTransformer !== 'function' ) keyTransformer = keyTransformer.__exec();
+
+              value[i][key] = await keyTransformer(value[i][key], localRefs ? value[i] : rawValues);
+
+            }
+
+          }
+
+          return value;
+
+        }
+
+      }
+
+      return undefined;
+
+    };
+
+  }
 };
 
 export default pipes;

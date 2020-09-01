@@ -1,5 +1,5 @@
 import 'source-map-support/register';
-import { ValidatorFunction, AsyncValidatorFunction, PipeFunction, AsyncPipeFunction, ExecutableValidators } from '@singular/common';
+import { ValidatorFunction, AsyncValidatorFunction, PipeFunction, AsyncPipeFunction, TransformationDefinition, ExecutableValidators } from '@singular/common';
 import pipes from './definitions';
 
 type MapCallback = (value: any, index: number, array: any[]) => any;
@@ -387,6 +387,24 @@ export class Pipes {
   ) {
 
     return this.when(condition, ...additionalConditions);
+
+  }
+
+  /**
+  * Runs the given transformer for value's children. Transformer can be a transformation definition for nested transformation.
+  *
+  * If value is an object, a transformation definition will transform the value's children key-by-key, and a pipe function (or executable pipes) will transform the whole object.
+  * If value is an array, a transformation definition will expect an array of objects, transforming each item's children key-by-key, while a pipe function (or executable pipes) will transform each item in the array.
+  */
+  public children(
+    transformer: TransformationDefinition|PipeFunction|AsyncPipeFunction|Pipes,
+    localRefs?: boolean
+  ) {
+
+    return new Pipes(this.__pipes.concat(
+      pipes.children(transformer instanceof Pipes ? transformer.__exec() : transformer, localRefs)),
+      this.__conditions
+    );
 
   }
 
