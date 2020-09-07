@@ -416,9 +416,11 @@ export class Pipes {
   }
 
   /** Returns a new validator that validates the piped value using a given validator. */
-  public then(validator: ValidatorFunction|AsyncValidatorFunction): AsyncValidatorFunction {
+  public then(validator: ValidatorFunction|AsyncValidatorFunction|ExecutableValidators): AsyncValidatorFunction {
 
     return (async (value: any, rawValues?: any) => {
+
+      if ( typeof validator !== 'function' ) validator = validator.__exec();
 
       return validator(await this.__exec()(value, rawValues), rawValues);
 

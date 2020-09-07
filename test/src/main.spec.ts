@@ -676,6 +676,8 @@ describe('Pipes', function() {
 
     expect(pipedValue).to.equal('freddy venus');
 
+    expect(await pipe.trim.lowercase.then(should.be.equal('test'))(' TEST ')).to.be.true;
+
   });
 
 });
