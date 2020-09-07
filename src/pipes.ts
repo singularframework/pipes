@@ -340,6 +340,13 @@ export class Pipes {
 
   }
 
+  /** Converts the value to Luxon's DateTime object. */
+  public get toDate() {
+
+    return new Pipes(this.__pipes.concat(pipes.toDate), this.__conditions);
+
+  }
+
   /** Sets the value to the given value. */
   public set(value: any) {
 

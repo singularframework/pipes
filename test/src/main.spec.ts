@@ -490,6 +490,16 @@ describe('Pipes', function() {
     expect(await pipes(false)).to.be.false;
     expect(await pipes(true)).to.be.true;
 
+    pipes = pipe.toDate.__exec();
+
+    expect((await pipes(Date.now())).invalid).to.be.null;
+    expect((await pipes('')).invalid).not.to.be.null;
+    expect((await pipes(undefined)).invalid).not.to.be.null;
+    expect((await pipes(null)).invalid).to.be.null;
+    expect((await pipes('2020-9-7')).invalid).to.be.null;
+    expect((await pipes(true)).invalid).to.be.null;
+    expect((await pipes(false)).invalid).to.be.null;
+
   });
 
   it('should set value by value and reference correctly', async function() {

@@ -86,6 +86,7 @@ const pipes = {
   toNumber: <PipeFunction>(value => +value),
   toString: <PipeFunction>(value => value + ''),
   toBoolean: <PipeFunction>(value => !! value),
+  toDate: <PipeFunction>(value => DateTime.fromJSDate(new Date(value))),
   set: (value: any) => <PipeFunction>(() => value),
   setRef: (ref: string) => <PipeFunction>((value, rawValues) => resolveRef(ref, rawValues)),
   children: (transformer: TransformationDefinition|PipeFunction|AsyncPipeFunction, localRefs?: boolean) => {
